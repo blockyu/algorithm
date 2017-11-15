@@ -25,5 +25,4 @@ int main(){
         N /= 2;
     }
     cout<<pos;
-
 }

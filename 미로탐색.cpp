@@ -1,56 +1,51 @@
 #include <iostream>
+#include <algorithm>
+#include <vector>
+#include <queue>
 using namespace std;
-int N,M;
+int C,R;
+queue<pair <int,int> > myqueue;
 char arr[101][101];
-bool isVisited[101][101];
+bool vis[101][101];
 int DP[101][101];
-int min(int a, int b, int c, int d){
-    return min(a,min(b,min(c,d)));
-}
-int findDes(int x, int y) {
-    if(x < 1 || y < 1 || x > N || y > M) return 0;
-    if(x == N && y == M) return 1;
-
-    int &ret = DP[x][y];
-    if(ret != 2e9) return ret;
-
-    int up,right,down,left;
-    up=right=down=left=2e9;
-
-    if(arr[x-1][y]=='1' && !isVisited[x-1][y]) {
-        isVisited[x-1][y] = true;
-        up = findDes(x-1, y);
-        isVisited[x-1][y] = false;
-    }
-    if(arr[x][y+1]=='1' && !isVisited[x][y+1]) {
-        isVisited[x][y+1] = true;
-        right = findDes(x, y+1);
-        isVisited[x][y+1] = false;
-    }
-    if(arr[x+1][y]=='1' && !isVisited[x+1][y]) {
-        isVisited[x+1][y] = true;
-        down = findDes(x+1, y);
-        isVisited[x+1][y] = false;
-    }
-    if(arr[x][y-1]=='1' && !isVisited[x][y-1]) {
-        isVisited[x][y-1] = true;
-        left = findDes(x, y-1);
-        isVisited[x][y-1] = false;
-    }
-    return ret = min(up, right, down, left) + 1;
-}
-int main() {
-    cin>>N>>M;
-    for(int i=1; i<=N; i++){
-        for(int j=1; j<=M; j++) {
-            cin>>arr[i][j];
+int moveR[] = {1,0,-1,0};
+int moveC[] = {0,1,0,-1};
+void check(pair<int,int> p) {
+    myqueue.push(p);
+    vis[p.first][p.second]=true;
+    DP[1][1] = 1;
+    while(!myqueue.empty()) {
+        pair<int,int> cur = myqueue.front();
+        myqueue.pop();
+        int c = cur.first;
+        int r = cur.second;
+        for(int i=0; i<4; i++) {
+            int nextC = c+moveC[i];
+            int nextR = r+moveR[i];
+            if(nextC<1 || nextC>C || nextR<1 || nextR>R) continue;
+            if(arr[nextC][nextR]>0 && !vis[nextC][nextR]) {
+                DP[nextC][nextR]=min(DP[nextC][nextR], DP[c][r]+1);
+                vis[nextC][nextR]=true;
+                myqueue.push(make_pair(nextC,nextR));
+            }
         }
     }
-    for(int i=1; i<=N; i++){
-        for(int j=1; j<=M; j++) {
+}
+int main() {
+    cin>>C>>R;
+    for(int i=1; i<=C; i++){
+        for(int j=1; j<=R; j++) {
+            cin>>arr[i][j];
+            arr[i][j] -= '0';
+        }
+    }
+    for(int i=1; i<=C; i++){
+        for(int j=1; j<=R; j++) {
             DP[i][j] = 2e9;
         }
     }
-    isVisited[1][1] = true;
-    cout<<findDes(1,1);
+    fill(&DP[0][0], &DP[C][R]+1, 2e9);
+    check(make_pair(1,1));
+    cout<<DP[C][R];
+
 }
