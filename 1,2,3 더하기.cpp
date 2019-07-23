@@ -21,5 +21,4 @@ int main(){
         int res = check(x);
         cout<<res<<endl;
     }
-
 }
